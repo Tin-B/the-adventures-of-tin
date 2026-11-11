@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The adventures of Tin – Houseplant Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--ink:#1f2a20;--mute:#5d6b5f;--line:#e2dfd3;--accent:#2f7d4f;--accent-ink:#fff;--soft:#e6f0e3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a15;--card:#1d261e;--ink:#e8efe6;--mute:#9aa99c;--line:#2d392f;--accent:#5fb97f;--accent-ink:#0f1a12;--soft:#243126}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:36px 20px 20px;text-align:center;max-width:760px;margin:auto}
+h1{font:700 2rem Georgia,serif;margin:0 0 6px}
+header p{color:var(--mute);margin:0 0 18px}
+input,textarea{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);outline:none;width:100%}
+input:focus,textarea:focus{border-color:var(--accent)}
+#q{padding:14px 18px;border-radius:999px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer;font-size:.9rem}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+main{max-width:1000px;margin:auto;padding:0 16px 40px}
+#count{color:var(--mute);font-size:.9rem;margin:6px 4px 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;padding:0;color:inherit;font:inherit;transition:transform .15s}
+.card:hover{transform:translateY(-3px)}
+.card img,.card svg{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.card .b{padding:12px 14px 14px}
+.card h3{margin:0;font-size:1.05rem}
+.card small{color:var(--mute);font-style:italic}
+.price{font-weight:700;color:var(--accent);margin-top:6px}
+#none{text-align:center;color:var(--mute);padding:40px 0;display:none}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+#ov.open{display:flex}
+.modal{background:var(--card);border-radius:20px;max-width:680px;width:100%;max-height:92vh;overflow:auto;position:relative}
+.x{position:absolute;top:10px;right:10px;border:0;background:var(--card);color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:2}
+.hero{background:var(--soft)}
+.hero>*{display:block;width:100%;height:min(60vw,340px);object-fit:cover}
+.body{padding:18px 22px 26px}
+.body h2{margin:0;font:700 1.6rem Georgia,serif}
+.body h4{margin:22px 0 8px;font-size:1.05rem;color:var(--accent)}
+.sci{margin:6px 0 0;color:var(--mute)}
+.sci b{color:var(--ink)}
+.big{font-size:1.5rem;font-weight:700;color:var(--accent);margin:8px 0}
+.body ul{padding-left:20px;margin:12px 0}
+.care{display:grid;gap:8px}
+.care div{background:var(--soft);border-radius:12px;padding:10px 14px}
+.care b{color:var(--accent)}
+.meter{display:flex;gap:4px;margin-top:6px}
+.meter i{width:100%;height:7px;border-radius:4px;background:var(--line)}
+.meter i.f{background:var(--accent)}
+.ask{margin-top:22px;border-top:1px solid var(--line);padding-top:4px}
+.ask input,.ask textarea{padding:10px 14px;border-radius:12px;margin-bottom:10px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:11px 22px;font:inherit;font-weight:600;cursor:pointer}
+#sent{color:var(--accent);margin:10px 0 0;display:none}
+.rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.rel .card .b{padding:8px 10px 10px}
+.rel .card h3{font-size:.9rem}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;gap:4px;justify-content:center;flex-wrap:wrap;padding:10px;background:var(--card);border-bottom:1px solid var(--line)}
+nav a{color:var(--ink);text-decoration:none;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.95rem}
+nav a:hover{background:var(--soft)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+#ov{z-index:20}
+.sec{max-width:1000px;margin:auto;padding:36px 16px 8px}
+.st{font:700 1.6rem Georgia,serif;margin:0 0 4px;text-align:center}
+.sub{color:var(--mute);text-align:center;margin:0 0 20px}
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.sv{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.sv span{font-size:2rem}
+.sv h3{margin:6px 0}
+.sv p{color:var(--mute);margin:0 0 10px}
+.sv a,.enq{color:var(--accent);font-weight:600;text-decoration:none}
+.tabs{display:flex;gap:8px;justify-content:center;margin:0 0 16px}
+.tab{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:8px 22px;border-radius:999px;cursor:pointer;font:inherit;font-weight:600}
+.tab.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sbar{max-width:760px;margin:0 auto 14px;text-align:center}
+.gh{margin:22px 0 8px}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:8px}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0;color:var(--mute)}
+.note{color:var(--mute);font-size:.9rem;margin-top:14px}
+.ct{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;padding-bottom:40px}
+.ci{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;align-items:flex-start}
+.ci span{font-size:1.6rem}
+.ci a{color:var(--accent);font-weight:600;word-break:break-word}
+:root{--bg:#faf5ec;--card:#fffdf8;--ink:#233023;--mute:#6a7566;--line:#eadfcf;--accent:#2e6b46;--soft:#e7efdb;--blush:#f7e0d6;--terra:#c4694a;--tx:#a14425;--butter:#fbf0c8;--sky:#dcecee;--g1:#e3eed6;--g2:#f7e2d7;--g3:#fbf0c8;--band:#eef3e3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121913;--card:#1c261e;--ink:#e9efe5;--mute:#9bab9c;--line:#2c382e;--accent:#6bc08a;--soft:#243126;--blush:#3b2b27;--terra:#e08a6b;--tx:#f2a98e;--butter:#3a3620;--sky:#223338;--g1:#1c2b1f;--g2:#2d2321;--g3:#2b2916;--band:#18221a}}
+body{font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,.body h2,.st{font-family:"Playfair Display",Georgia,serif}
+header{max-width:none;background:linear-gradient(135deg,var(--g1),var(--g2) 60%,var(--g3));border-radius:0 0 44px 44px;padding:54px 20px 46px}
+h1{font-size:clamp(2.4rem,7vw,3.6rem);color:var(--accent)}
+header p{font-size:1.1rem;max-width:520px;margin:0 auto 22px}
+.cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cta a{padding:12px 26px;border-radius:999px;font-weight:700;text-decoration:none;background:var(--accent);color:var(--accent-ink)}
+.cta a.alt{background:var(--card);color:var(--accent);border:2px solid var(--accent)}
+nav a:hover{background:var(--blush)}
+.st::after{content:"";display:block;width:56px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--terra));margin:10px auto 0}
+.card{border:0;border-radius:22px;box-shadow:0 6px 20px rgba(60,80,50,.12);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-5px);box-shadow:0 12px 28px rgba(60,80,50,.2)}
+.card img,.card svg{transition:transform .4s}
+.card:hover img,.card:hover svg{transform:scale(1.05)}
+.price{display:inline-block;background:var(--blush);color:var(--tx);padding:2px 12px;border-radius:999px}
+.chip{background:var(--soft);border-color:transparent}
+.chip.on{background:var(--accent);border-color:var(--accent)}
+.sv{border:0;border-radius:22px;box-shadow:0 6px 18px rgba(60,80,50,.1)}
+.sv:nth-child(1){background:var(--soft)}.sv:nth-child(2){background:var(--sky)}.sv:nth-child(3){background:var(--blush)}.sv:nth-child(4){background:var(--butter)}
+.sv span{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--card);font-size:1.7rem}
+.sv p{color:var(--ink);opacity:.85}
+#services,#book{background:var(--band);box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax)}
+#contact{background:var(--blush);box-shadow:0 0 0 100vmax var(--blush);clip-path:inset(0 -100vmax)}
+#book{padding-bottom:44px}
+details{border:0;border-left:4px solid var(--accent);box-shadow:0 3px 10px rgba(60,80,50,.08)}
+summary{color:var(--accent)}
+.ci{border:0;box-shadow:0 6px 18px rgba(60,80,50,.1)}
+.ci span{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--soft);flex:none}
+.bf{max-width:720px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--card);padding:22px;border-radius:22px;box-shadow:0 6px 20px rgba(60,80,50,.12)}
+.bf label{display:grid;gap:4px;font-size:.85rem;font-weight:700;color:var(--mute)}
+.bf .w{grid-column:1/-1}
+.bf input,.bf textarea,.bf select{padding:10px 14px;border-radius:12px;font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:2px solid var(--line);width:100%}
+.bf .btn{background:var(--tx);color:var(--card)}
+#bsent{display:none;color:var(--accent);margin:0}
+footer{text-align:center;color:var(--mute);padding:26px 16px 34px;font-size:.9rem}
+@media(max-width:560px){.bf{grid-template-columns:1fr}}
+.gwrap{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:8px}
+.gwrap>.gp{flex:0 0 210px;max-width:100%;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(60,80,50,.15)}
+.gp img,.gp svg{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.gwrap>div:last-child{flex:1 1 240px}
+header{position:relative;overflow:hidden;background:#0e3d2a;padding:76px 20px 62px}
+header>:not(.bg){position:relative;z-index:1}
+header h1{color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.5)}
+header p{color:#f3f7e9;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.cta a{background:#f4d35e;color:#1b3a24}
+.cta a.alt{background:rgba(255,255,255,.14);color:#fff;border:2px solid #fff;backdrop-filter:blur(4px)}
+.bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.bg svg,.bg img{display:block;width:100%;height:100%;object-fit:cover}
+.bg img{animation:kb 30s ease-in-out infinite alternate}
+.bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(6,28,16,.6),rgba(6,28,16,.12) 75%)}
+.sw{animation:sway 8s ease-in-out infinite alternate}
+.ray{animation:ray 9s ease-in-out infinite alternate}
+.mist{animation:mist 16s ease-in-out infinite alternate}
+.pf{animation:pf 9s linear infinite}
+@keyframes sway{from{transform:rotate(calc((var(--lean,0) - var(--amp,3.5)) * var(--k,1) * 1deg))}to{transform:rotate(calc((var(--lean,0) + var(--amp,3.5)) * var(--k,1) * 1deg))}}
+@keyframes ray{from{opacity:.25}to{opacity:.75}}
+@keyframes mist{from{transform:translateX(-60px)}to{transform:translateX(60px)}}
+@keyframes pf{0%{transform:translateY(0);opacity:0}20%{opacity:.9}100%{transform:translateY(-90px);opacity:0}}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.12) translate(-1.5%,-1%)}}
+@media (prefers-reduced-motion:reduce){.bg *{animation:none!important}}
+:root{--bg:#fff;--card:#fff;--band:#fff;--line:#ece7dc}
+#contact{background:var(--bg);box-shadow:0 0 0 100vmax var(--bg)}
+</style>
+</head>
+<body>
+<nav><a href="#plants" data-v="plants">Plants</a><a href="#plants" data-v="vases">Vases</a><a href="#services">Services</a><a href="#guides">Plant guides</a><a href="#contact">Contact</a></nav>
+<header>
+<div class="bg" id="hbg"></div>
+<h1>🌿 The adventures of Tin</h1>
+<p>Find your perfect houseplant and learn exactly how to keep it happy.</p>
+<div class="cta"><a href="#plants" data-v="plants">Shop plants</a><a class="alt" href="#book">Book a service</a></div>
+</header>
+<main id="plants">
+<h2 class="st">Plants and Vases</h2><p class="sub">Browse every plant we have, then pick a vase to go with it.</p>
+<div class="tabs"><button class="tab on" data-v="plants">Plants</button><button class="tab" data-v="vases">Vases</button></div>
+<div id="pv">
+<div class="sbar"><input id="q" type="search" placeholder="Search plants, e.g. monstera, fern, low light…" aria-label="Search plants" autocomplete="off">
+<div class="chips" id="chips"></div></div>
+<div id="count"></div>
+<div class="grid" id="grid"></div>
+<div id="none">No plants match your search. Try another name or clear the filter.</div>
+</div>
+<div id="vv" style="display:none"><div class="grid" id="vgrid"></div></div>
+</main>
+<section class="sec" id="services"><h2 class="st">Our services</h2><p class="sub">More than plants: we help you pot, style, borrow and give them.</p>
+<div class="svc">
+<div class="sv"><span>🪴</span><h3>Repotting</h3><p>Outgrown pot or tired soil? We repot your plant into a fresh pot with the right mix and check the roots while we’re at it.</p><a href="#contact">Book repotting</a></div>
+<div class="sv"><span>🏢</span><h3>Plant rental</h3><p>Greenery for your office, shop, event or wedding without the long-term commitment. We choose, set up and care for the plants.</p><a href="#contact">Ask about rental</a></div>
+<div class="sv"><span>💐</span><h3>Flower arrangement</h3><p>Hand-tied bouquets and table arrangements for homes, events and gifts, styled in a vase from our collection.</p><a href="#contact">Order flowers</a> · <a href="#plants" data-v="vases">Browse vases</a></div>
+<div class="sv"><span>🎁</span><h3>Plant gifting</h3><p>Pick a plant, a vase and a note, and we’ll wrap it beautifully for birthdays, housewarmings and thank-yous.</p><a href="#contact">Send a gift</a> · <a href="#plants" data-v="vases">Browse vases</a></div>
+</div></section>
+<section class="sec" id="book"><h2 class="st">Book a service</h2><p class="sub">Tell us what you need and when, and we’ll confirm by phone or email.</p>
+<form id="bf" class="bf">
+<label>Service<select id="bsvc" name="svc"><option>Repotting</option><option>Plant rental</option><option>Flower arrangement</option><option>Plant gifting</option></select></label>
+<label>Preferred date<input type="date" id="bdate" name="date" required></label>
+<label>Your name<input name="fullname" required></label>
+<label>Phone<input name="phone" type="tel" required></label>
+<label>Email<input name="email" type="email" required></label>
+<label>Preferred time<select name="time"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label>
+<label class="w">Address or location<input name="addr" placeholder="Where should we come, or deliver to?"></label>
+<label class="w">Details<textarea name="msg" rows="3" placeholder="How many plants, which pot or vase, event type, gift message…"></textarea></label>
+<button class="btn w" type="submit">Request booking</button><p id="bsent" class="w">Thanks! Your email app should open with your booking request ready to send.</p>
+</form></section>
+<section class="sec" id="guides"><h2 class="st">Plant guides</h2><p class="sub">Keep your plants healthy: deal with pests and diseases, and feed them well.</p>
+<h3 class="gh">🐛 Pests</h3><div id="g1"></div>
+<h3 class="gh">🍂 Diseases and problems</h3><div id="g2"></div>
+<h3 class="gh">🧪 Feeding and fertilisers</h3><div id="g3"></div>
+<p class="note">Always test any spray on one leaf first, keep treated plants away from pets and children until dry, and follow the product label.</p></section>
+<section class="sec" id="contact"><h2 class="st">Contact us</h2><p class="sub">Questions, bookings or orders? Get in touch.</p><div class="ct" id="ct"></div></section>
+<footer>🌿 The adventures of Tin · Houseplants, vases and plant care</footer>
+<div id="ov"><div class="modal" id="modal"></div></div>
+
+<script>
+/* ============ EDIT ME ============ */
+// 1) Picture paths: change the text after each colon to your own image file or URL.
+//    If a path is empty or the file can’t be found, a drawn illustration shows instead.
+const IMG = {
+  "Snake Plant": "C:/Users/user/Downloads/The adventures of Tin/snake plant.jpg",
+  "Pothos": "images/pothos.jpg",
+  "Monstera": "images/monstera.jpg",
+  "Peace Lily": "images/peace-lily.jpg",
+  "Aloe Vera": "images/aloe-vera.jpg",
+  "ZZ Plant": "images/zz-plant.jpg",
+  "Spider Plant": "images/spider-plant.jpg",
+  "Fiddle Leaf Fig": "images/fiddle-leaf-fig.jpg",
+  "Rubber Plant": "images/rubber-plant.jpg",
+  "Boston Fern": "images/boston-fern.jpg",
+  "Macho Fern": "images/macho-fern.jpg",
+  "Chinese Money Plant": "images/chinese-money-plant.jpg",
+  "Orchid": "images/orchid.jpg"
+};
+// 2) Contact details: shown in the Contact section. “Ask a question” emails go to the email below.
+const CONTACT = {insta:"https://instagram.com/the_adventuresof_tin", instaName:"the_adventuresof_tin", address:"34 Cornwall Rd, Avondale", phone:"+263 777 603 662", email:"tin34793@gmail.com"};
+const SHOP_EMAIL = CONTACT.email;
+// 3) Pest and disease pictures: put your own photo path after each name (e.g. "images/guides/aphids.jpg").
+//    If a path is empty or missing, a drawn identification illustration shows instead.
+const GIMG = {
+ "Spider mites":"images/guides/spider-mites.jpg",
+ "Mealybugs":"images/guides/mealybugs.jpg",
+ "Fungus gnats":"images/guides/fungus-gnats.jpg",
+ "Aphids":"images/guides/aphids.jpg",
+ "Scale insects":"images/guides/scale-insects.jpg",
+ "Root rot":"images/guides/root-rot.jpg",
+ "Powdery mildew":"images/guides/powdery-mildew.jpg",
+ "Leaf spot":"images/guides/leaf-spot.jpg",
+ "Yellow leaves and brown tips":"images/guides/yellow-leaves.jpg"
+};
+// 4) Hero background photo (top banner): path to your own rainforest / monstera photo. It slowly zooms and drifts.
+//    If the file is missing, an animated drawn rainforest scene with swaying monstera leaves shows instead.
+const HERO_BG = "images/monstera-rainforest.jpg";
+// 5) Vases (sample items: change names, prices, descriptions and picture paths to your own).
+const VASES = [
+ {n:"Ceramic Round Vase",p:25,c:"#c4764a",img:"images/vases/ceramic-round.jpg",d:"Wide-mouthed and glazed, ideal for full bouquets."},
+ {n:"Glass Cylinder Vase",p:18,c:"#7fb6c4",img:"images/vases/glass-cylinder.jpg",d:"Clear and classic, shows off stems."},
+ {n:"Tall Floor Vase",p:60,c:"#6b5b4b",img:"images/vases/tall-floor.jpg",d:"A statement piece for branches and tall stems."},
+ {n:"Bud Vase Set",p:22,c:"#d9b86a",img:"images/vases/bud-set.jpg",d:"Set of three small vases for single stems."},
+ {n:"Terracotta Vase",p:15,c:"#b8643c",img:"images/vases/terracotta.jpg",d:"Warm, earthy and rustic."},
+ {n:"Matte White Vase",p:28,c:"#d8d6cf",img:"images/vases/matte-white.jpg",d:"Minimal and modern for any room."}
+];
+/* =================================== */
+
+const P=[
+{n:"Snake Plant",l:"Dracaena trifasciata",s:"Sansevieria trifasciata, Mother-in-law’s Tongue, Viper’s Bowstring Hemp",c:"#3f7f4a",p:18,t:["low light","beginner"],pet:0,sun:1,hum:1,
+b:["Bold, architectural upright leaves","Thrives on neglect","Tolerates low light"],
+d:["The Snake Plant is the ultimate low-maintenance statement piece. Its stiff, sword-shaped leaves with banded green markings bring clean vertical lines to any room, from a dim hallway to a sunny office desk.","Its thick leaves store water, so it forgives missed waterings far better than too many. Pot it in a gritty, free-draining mix and it will reward you with slow, steady growth for years."],
+L:"Low to bright indirect light; tolerates dim corners.",W:"Every 2–3 weeks, once the soil is completely dry. Monthly in winter.",H:"Low; average home air is fine.",F:"Half-strength balanced fertilizer once a month in spring and summer."},
+{n:"Pothos",l:"Epipremnum aureum",s:"Devil’s Ivy, Golden Pothos, Money Plant",c:"#4c9a52",p:14,t:["low light","beginner"],pet:0,sun:1,hum:2,
+b:["Trailing, heart-shaped leaves","Happy in low light","Roots easily from cuttings"],
+d:["Pothos is the friendly all-rounder of the houseplant world. Its glossy, heart-shaped leaves, splashed with gold or cream, tumble from shelves and hanging baskets or climb a moss pole with ease.","Trim the vines regularly for a fuller plant, and pop the cuttings in water to grow new ones to share. It copes with busy households, offices and the occasional forgotten watering."],
+L:"Low to medium indirect light; avoid harsh direct sun.",W:"When the top 2 inches of soil are dry, about every 7–10 days.",H:"Medium humidity.",F:"Balanced liquid fertilizer every 4 weeks in spring and summer."},
+{n:"Monstera",l:"Monstera deliciosa",s:"Swiss Cheese Plant, Split-leaf Philodendron, Mexican Breadfruit",c:"#2e7a45",p:35,t:["bright light","statement"],pet:0,sun:2,hum:2,
+b:["Iconic split, glossy leaves","Fast, dramatic growth","Climbs with support"],
+d:["The Monstera is the plant everyone notices. Its large leaves develop dramatic splits and holes as they mature, creating an instant tropical-jungle feel in any living space.","Give it a moss pole or trellis to climb and it will produce bigger, more fenestrated leaves. Wipe the foliage occasionally to keep it glossy and rotate the pot so it grows evenly."],
+L:"Bright indirect light; gentle morning sun is fine.",W:"When the top 2 inches are dry, about every 7–10 days.",H:"Medium to high humidity.",F:"Balanced fertilizer every 2–4 weeks in spring and summer."},
+{n:"Peace Lily",l:"Spathiphyllum wallisii",s:"Spath, Closet Plant, White Sails",c:"#2f7048",p:22,t:["low light","flowering"],pet:0,sun:1,hum:3,
+b:["Elegant white blooms","Thrives in lower light","Droops to tell you it’s thirsty"],
+d:["The Peace Lily pairs deep green, glossy leaves with graceful white blooms that appear throughout the year. It is one of the few flowering houseplants that is happy in lower light.","It tells you when it needs a drink by drooping dramatically, then perks up within hours of watering. Brown tips usually mean dry air or mineral-heavy tap water, so use filtered or rainwater if you can."],
+L:"Low to medium indirect light.",W:"Weekly; keep soil lightly moist but never soggy.",H:"High; mist regularly or use a pebble tray.",F:"Balanced fertilizer every 6 weeks in spring and summer."},
+{n:"Aloe Vera",l:"Aloe vera (Aloe barbadensis miller)",s:"True Aloe, Medicinal Aloe, Burn Plant",c:"#6aa86b",p:12,t:["bright light","beginner"],pet:0,sun:3,hum:1,
+b:["Fleshy, sculptural rosette","Loves a sunny windowsill","Drought tolerant"],
+d:["Aloe Vera is a sun-loving succulent with plump, spiky leaves that form a neat, sculptural rosette. It looks fantastic on a bright windowsill and needs very little attention.","Plant it in gritty cactus mix in a pot with drainage holes and let it dry out fully between drinks. Soggy soil is its only real enemy."],
+L:"Bright light with several hours of direct sun.",W:"Every 2–3 weeks; soak thoroughly, then let the soil dry completely.",H:"Low humidity.",F:"Cactus fertilizer once or twice in spring and summer."},
+{n:"ZZ Plant",l:"Zamioculcas zamiifolia",s:"Zanzibar Gem, Eternity Plant, Aroid Palm",c:"#245f3a",p:28,t:["low light","beginner"],pet:0,sun:1,hum:1,
+b:["Glossy, waxy, modern look","Nearly indestructible","Great for low light"],
+d:["The ZZ Plant’s arching stems and glossy, waxy leaves look polished and modern in any space. It thrives on neglect, making it a favourite for beginners and busy people.","Underground rhizomes store water, so it shrugs off long gaps between drinks. Overwatering is the only common problem, so always check the soil first."],
+L:"Low to bright indirect light.",W:"Every 2–4 weeks, once the soil is fully dry.",H:"Low to average humidity.",F:"Balanced fertilizer every 2 months in spring and summer."},
+{n:"Spider Plant",l:"Chlorophytum comosum",s:"Airplane Plant, Spider Ivy, Ribbon Plant",c:"#79b05a",p:13,t:["medium light","beginner"],pet:1,sun:2,hum:2,
+b:["Arching, striped foliage","Produces baby plantlets","Pet friendly"],
+d:["The Spider Plant has arching, striped leaves that cascade beautifully from a hanging basket or shelf. Mature plants send out long stems with tiny plantlets that dangle like spiders on a thread.","Snip off the babies and pot them up to grow new plants for friends. Brown tips are common and usually caused by fluoride in tap water or dry air."],
+L:"Medium to bright indirect light.",W:"Weekly; keep soil evenly moist.",H:"Medium humidity.",F:"Balanced fertilizer monthly in spring and summer."},
+{n:"Fiddle Leaf Fig",l:"Ficus lyrata",s:"Banjo Fig, Fiddle-leaf Fig",c:"#3a8a3f",p:55,t:["bright light","statement"],pet:0,sun:3,hum:2,
+b:["Large, violin-shaped leaves","A true statement floor plant","Prefers a consistent spot"],
+d:["The Fiddle Leaf Fig is the ultimate statement tree, with huge, veined, violin-shaped leaves on an upright trunk. It brings an instant designer look to a bright living room.","It dislikes change, so choose a bright spot and leave it there. Rotate the pot a quarter turn every few weeks and avoid cold drafts to keep leaf drop to a minimum."],
+L:"Bright indirect light near a window.",W:"Thoroughly when the top inch is dry, about every 7–10 days.",H:"Medium humidity.",F:"Balanced fertilizer every 2–4 weeks in spring and summer."},
+{n:"Rubber Plant",l:"Ficus elastica",s:"Rubber Fig, Rubber Tree, India Rubber Plant",c:"#2b5a36",p:30,t:["medium light","statement"],pet:0,sun:2,hum:2,
+b:["Thick, glossy leaves","Easy to grow","Impressive upright size"],
+d:["The Rubber Plant has thick, glossy, oval leaves in deep green or burgundy that look striking in any corner. It grows upright into an impressive tree with minimal fuss.","Wipe the large leaves with a damp cloth to keep them shiny and able to absorb light. Prune the top to encourage a bushier, branching shape."],
+L:"Medium to bright indirect light.",W:"When the top 2 inches are dry, every 1–2 weeks.",H:"Medium humidity.",F:"Balanced fertilizer monthly in spring and summer."},
+{n:"Boston Fern",l:"Nephrolepis exaltata ‘Bostoniensis’",s:"Sword Fern, Ladder Fern",c:"#4f9a3c",p:20,t:["medium light","humidity lover"],pet:1,sun:2,hum:3,
+b:["Soft, feathery arching fronds","Pet friendly","Loves moisture"],
+d:["The Boston Fern is a classic, with lush, feathery fronds that arch gracefully from a hanging basket or plant stand. It brings a soft, fresh feel to bathrooms and bright rooms.","Keep the soil evenly moist and the air humid to avoid crispy fronds. A bathroom spot or regular misting works wonders."],
+L:"Medium indirect light; no hot afternoon sun.",W:"Every 3–4 days; keep soil consistently moist.",H:"High humidity.",F:"Fern fertilizer every 2 weeks in spring and summer."},
+{n:"Macho Fern",l:"Nephrolepis biserrata",s:"Sword fern, Broad Sword Fern, Giant Sword fern, Macho Fern",c:"#2f7a3a",p:24,t:["medium light","humidity lover","statement"],pet:0,sun:2,hum:3,
+b:["Broad deep green foliage","The ideal hanging fern","Relatively easy care","Will be happy on a protected patio or balcony","Loves moisture"],
+d:["The Macho fern is no doubt a statement plant, even among a crowd! With its striking deep green foliage and long robust fronds, there is no doubt everyone should have this spectacular beauty somewhere in their home.","The Macho Fern as a houseplant gets pretty large, making it the ideal hanging fern, as its fronds tend to drape downwards due to their length and weight, creating a gorgeous canopy of soft celestial foliage. Perfect for a protected patio or balcony with dappled lighting.","Other fabulous styling tips include placing your Macho fern on a stand in a medium to brightly lit room or bathroom, where it will create an eye-catching floor-standing piece. Be sure to provide evenly moist potting mix and good humidity, to avoid dry leaf tips and to keep your fern thriving."],
+L:"Bright filtered light is best.",W:"Water once the surface of the soil is dry to the touch, however, avoid complete drying out.",H:"Medium to high humidity is ideal.",F:"Use a well balanced organic fertilizer or a fertilizer specially formulated for ferns every two weeks during active growth of spring through summer."},
+{n:"Chinese Money Plant",l:"Pilea peperomioides",s:"Pancake Plant, UFO Plant, Missionary Plant",c:"#5aa25a",p:19,t:["bright light"],pet:1,sun:2,hum:2,
+b:["Perfectly round, coin-shaped leaves","Produces pups to share","Pet friendly"],
+d:["The Chinese Money Plant is instantly recognisable by its round, coin-like leaves on slender stems. Its playful shape suits modern shelves and desks.","It sends up small pups around the base; separate them to grow new plants to share. Rotate the pot often so it grows evenly and doesn’t lean toward the light."],
+L:"Bright indirect light.",W:"When the top inch is dry, about every 7–10 days.",H:"Medium humidity.",F:"Balanced fertilizer every 4 weeks in spring and summer."},
+{n:"Orchid",l:"Phalaenopsis hybrid",s:"Moth Orchid",c:"#3f8a55",p:32,t:["bright light","flowering"],pet:1,sun:2,hum:3,
+b:["Long-lasting elegant blooms","Reblooms year after year","Pet friendly"],
+d:["The Moth Orchid produces elegant arching sprays of flowers that last for months. It is one of the easiest orchids to grow indoors and a lovely gift.","Grow it in bark mix in a clear pot so you can see the roots. After flowering, cut the spike just above a node and it will often bloom again."],
+L:"Bright indirect light; an east-facing window is ideal.",W:"Weekly; soak the roots, drain well and never let it sit in water.",H:"Medium to high humidity.",F:"Orchid fertilizer every 2 weeks, diluted to half strength."}
+];
+
+function art(p){
+ const c=p.c,pot='<path d="M62 150h76l-8 40H70z" fill="#c4764a"/><rect x="58" y="144" width="84" height="10" rx="3" fill="#d98c5d"/>';
+ const k=/Fern|Spider/.test(p.n)?"fern":/Snake|ZZ/.test(p.n)?"up":/Aloe/.test(p.n)?"spk":/Money/.test(p.n)?"rnd":/Pothos/.test(p.n)?"trl":/Lily|Orchid/.test(p.n)?"flw":"brd";
+ let s='';const L=(a,rx,ry,col)=>`<ellipse cx="100" cy="${142-ry}" rx="${rx}" ry="${ry}" fill="${col||c}" transform="rotate(${a} 100 142)"/>`;
+ if(k=="up")[-28,-14,0,14,28].forEach((a,i)=>s+=L(a,11,[48,62,78,62,48][i],i%2?c:"#4f9a5a"));
+ else if(k=="brd")[-55,-30,0,30,55].forEach((a,i)=>s+=`<rect x="99" y="80" width="2" height="62" fill="${c}" transform="rotate(${a} 100 142)"/><ellipse cx="100" cy="88" rx="24" ry="34" fill="${i%2?c:"#4f9a5a"}" transform="rotate(${a} 100 142)"/>`);
+ else if(k=="spk")[-45,-25,-8,10,28,48].forEach(a=>s+=`<path d="M92 144L108 144L100 70Z" fill="${c}" transform="rotate(${a} 100 144)"/>`);
+ else if(k=="fern")[-70,-50,-30,-10,10,30,50,70].forEach((a,i)=>s+=L(a,7,50+(i%2)*14,i%2?c:"#5da85a"));
+ else if(k=="rnd")[[-35,60],[0,45],[35,60],[-15,90],[18,92]].forEach(([x,y])=>s+=`<line x1="100" y1="144" x2="${100+x}" y2="${y+10}" stroke="${c}" stroke-width="3"/><circle cx="${100+x}" cy="${y}" r="22" fill="${c}"/><circle cx="${100+x}" cy="${y}" r="5" fill="#8bc58a"/>`);
+ else if(k=="trl"){[[-30,70],[0,55],[30,70]].forEach(([x,y])=>s+=`<path d="M100 144Q${100+x*2} ${y-10} ${100+x*1.6} 110" stroke="${c}" stroke-width="3" fill="none"/>`);[[-40,64],[-50,92],[-24,48],[0,40],[34,50],[52,92],[44,66],[-18,92],[16,96]].forEach(([x,y],i)=>s+=`<ellipse cx="${100+x}" cy="${y+8}" rx="14" ry="10" fill="${i%2?c:"#6bb86b"}" transform="rotate(${x*1.3} ${100+x} ${y+8})"/>`)}
+ else{[-50,-25,0,25,50].forEach(a=>s+=L(a,14,52));s+=`<line x1="100" y1="142" x2="106" y2="60" stroke="${c}" stroke-width="3"/><path d="M106 40C92 52 94 72 106 78C118 72 120 52 106 40Z" fill="#fff" stroke="#d9d9d9"/>`}
+ return `<svg viewBox="0 0 200 200" role="img" aria-label="${p.n} illustration"><rect width="200" height="200" fill="${["#e6f0e3","#f3ead9","#e3edf0","#f1e4e4"][p.p%4]}"/>${s}${pot}</svg>`;
+}
+const $=id=>document.getElementById(id);
+const pic=i=>{const p=P[i],u=IMG[p.n];return u?`<img src="${u}" alt="${p.n}" loading="lazy" onerror="fb(this,${i})">`:art(p)};
+window.fb=(el,i)=>{el.outerHTML=art(P[i])};
+const card=i=>`<button class="card" data-i="${i}">${pic(i)}<div class="b"><h3>${P[i].n}</h3>${""}<div class="price">$${P[i].p.toFixed(2)}</div></div></button>`;
+
+const tags=["all","beginner","low light","bright light","pet safe","flowering"];
+let tag="all";
+$("chips").innerHTML=tags.map(t=>`<button class="chip${t=="all"?" on":""}" data-t="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join("");
+$("chips").onclick=e=>{const t=e.target.dataset.t;if(!t)return;tag=t;[...$("chips").children].forEach(b=>b.classList.toggle("on",b.dataset.t==t));render()};
+$("q").oninput=render;
+function render(){
+ const q=$("q").value.trim().toLowerCase();
+ const r=P.map((p,i)=>i).filter(i=>{const p=P[i];return(tag=="all"||(tag=="pet safe"?p.pet:p.t.includes(tag)))&&(!q||(p.n+" "+p.l+" "+p.s+" "+p.t.join(" ")+(p.pet?" pet safe":" toxic")).toLowerCase().includes(q))});
+ $("grid").innerHTML=r.map(i=>card(i).replace("<h3>"+P[i].n+"</h3>","<h3>"+P[i].n+"</h3><small>"+P[i].l.split(" (")[0]+"</small>")).join("");
+ $("count").textContent=r.length+(r.length==1?" plant":" plants");
+ $("none").style.display=r.length?"none":"block";
+}
+const meter=(n,lab)=>`<div class="meter" aria-label="${lab}">${[1,2,3].map(i=>`<i class="${i<=n?"f":""}"></i>`).join("")}</div>`;
+function related(i){
+ const a=P[i];
+ return P.map((p,j)=>({j,s:j==i?-1:p.t.filter(t=>a.t.includes(t)).length*2+(p.sun==a.sun)+(p.pet==a.pet)*.5+(p.hum==a.hum)*.5})).sort((x,y)=>y.s-x.s).slice(0,4).map(o=>o.j);
+}
+function open(i){
+ const p=P[i];
+ const tox=p.pet?`Please note: The ${p.n} is considered non-toxic to cats and dogs.`:`Please note: The ${p.n} is considered mildly toxic. Best kept out of reach of pets and children.`;
+ $("modal").innerHTML=`<button class="x" aria-label="Close">×</button><div class="hero">${pic(i)}</div><div class="body">
+ <h2>${p.n}</h2>
+ <p class="sci"><b>Scientific Name:</b> ${p.l}<br><b>Synonyms:</b> ${p.s}.</p>
+ <div class="big">$${p.p.toFixed(2)}</div>
+ <ul>${p.b.map(x=>`<li>${x}</li>`).join("")}</ul>
+ ${p.d.map(x=>`<p>${x}</p>`).join("")}
+ <p><b>${tox}</b></p>
+ <h4>CARE INSTRUCTIONS</h4>
+ <p style="margin:0 0 8px">Follow these care instructions to keep your ${p.n} happy and healthy:</p>
+ <div class="care">
+ <div><b>Light:</b> ${p.L}${meter(p.sun,"light need")}</div>
+ <div><b>Water:</b> ${p.W}</div>
+ <div><b>Humidity:</b> ${p.H}${meter(p.hum,"humidity need")}</div>
+ <div><b>Fertilizer:</b> ${p.F}</div></div>
+ <div class="ask"><h4>Ask a question about the ${p.n}</h4>
+ <form id="askf" data-i="${i}"><input name="name" placeholder="Your name" required><input name="email" type="email" placeholder="Your email" required><textarea name="msg" rows="3" placeholder="What would you like to know?" required></textarea>
+ <button class="btn" type="submit">Send question</button><p id="sent">Thanks! Your email app should open with your question ready to send.</p></form></div>
+ <h4>You may also like</h4><div class="rel">${related(i).map(card).join("")}</div>
+ </div>`;
+ $("modal").scrollTop=0;$("ov").classList.add("open");
+}
+$("grid").onclick=e=>{const c=e.target.closest(".card");if(c)open(+c.dataset.i)};
+$("modal").onclick=e=>{if(e.target.className=="x")return close();const c=e.target.closest(".card");if(c)open(+c.dataset.i)};
+$("modal").onsubmit=e=>{
+ e.preventDefault();const f=e.target,p=P[+f.dataset.i];
+ const body=`${f.msg.value}\n\nFrom: ${f.name.value} <${f.email.value}>`;
+ location.href=`mailto:${SHOP_EMAIL}?subject=${encodeURIComponent("Question about "+p.n)}&body=${encodeURIComponent(body)}`;
+ $("sent").style.display="block";
+};
+const close=()=>$("ov").classList.remove("open");
+$("ov").onclick=e=>{if(e.target.id=="ov")close()};
+addEventListener("keydown",e=>{if(e.key=="Escape")close()});
+
+/* ---- Vases ---- */
+const vsvg=v=>`<svg viewBox="0 0 200 200" role="img" aria-label="${v.n}"><rect width="200" height="200" fill="#f3ead9"/><path d="M82 36h36v26c32 20 42 52 30 90-3 12-10 20-22 20H74c-12 0-19-8-22-20-12-38-2-70 30-90z" fill="${v.c}"/></svg>`;
+$("vgrid").innerHTML=VASES.map((v,i)=>`<div class="card" style="cursor:default">${v.img?`<img src="${v.img}" alt="${v.n}" loading="lazy" onerror="this.outerHTML=vsvg(VASES[${i}])">`:vsvg(v)}<div class="b"><h3>${v.n}</h3><small>${v.d}</small><div class="price">$${v.p.toFixed(2)}</div><a href="#contact" class="enq">Enquire</a></div></div>`).join("");
+function tab(v){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==v));$("pv").style.display=v=="plants"?"":"none";$("vv").style.display=v=="vases"?"":"none"}
+document.querySelector(".tabs").onclick=e=>{if(e.target.dataset.v)tab(e.target.dataset.v)};
+document.querySelectorAll("a[data-v]").forEach(a=>a.addEventListener("click",()=>tab(a.dataset.v)));
+
+/* ---- Plant guides ---- */
+const G1=[["Spider mites","Fine webbing, tiny pale speckles on leaves and dusty-looking undersides.","Isolate the plant, rinse the leaves with lukewarm water, then spray with insecticidal soap or neem oil every 5–7 days for 3 weeks. Raise the humidity, since mites love dry air."],
+["Mealybugs","White, cottony clumps on stems and leaf joints, often with sticky residue.","Dab each bug with a cotton bud dipped in rubbing alcohol, then spray with insecticidal soap. Repeat weekly until none appear."],
+["Fungus gnats","Tiny black flies hovering around the soil.","They breed in constantly wet soil. Let the top 2 inches dry between waterings, use yellow sticky traps, water from the bottom, and add a thin layer of sand on top of the soil."],
+["Aphids","Clusters of small green, black or brown insects on new growth, curled leaves and sticky honeydew.","Spray them off with water, then use insecticidal soap or neem oil every few days until they’re gone."],
+["Scale insects","Small brown or tan bumps on stems and leaf undersides that don’t wipe off easily.","Scrape or wipe them off with an alcohol-soaked swab, then treat with neem oil every 7–10 days."]];
+const G2=[["Root rot","Wilting or yellowing despite wet soil, black mushy roots and a sour smell.","Unpot the plant, cut away all black or mushy roots, and repot into fresh, free-draining mix in a pot with drainage holes. Water far less until it recovers."],
+["Powdery mildew","White, powdery patches on leaves and stems.","Remove badly affected leaves, improve airflow and keep foliage dry. Spray with diluted neem oil or 1 teaspoon of baking soda per litre of water with a drop of dish soap."],
+["Leaf spot","Brown or black spots, often with yellow rings, on the leaves.","Remove spotted leaves, water at soil level rather than over the foliage, and avoid crowding. A copper-based fungicide can help if it keeps spreading."],
+["Yellow leaves and brown tips","Yellowing leaves, crispy edges or tips.","Yellow leaves usually point to overwatering or poor drainage; brown tips to dry air, tap-water minerals or underwatering. Check the soil moisture first, adjust watering and trim damaged tips."]];
+const G3=[["When to feed","Feed during active growth, in spring and summer. Pause or cut back in autumn and winter when growth slows."],
+["Balanced liquid fertiliser","The easiest all-rounder for most houseplants. Look for an even NPK ratio such as 10-10-10 and dilute to half the label strength, every 2–4 weeks in the growing season."],
+["Slow-release granules","Mix into the soil or sprinkle on top and they feed for 2–3 months. Follow the label for the amount."],
+["Specialist feeds","Ferns like a fern fertiliser, orchids a diluted orchid feed, and cacti and succulents a low-nitrogen cactus feed used sparingly. Flowering plants benefit from a feed higher in phosphorus."],
+["Organic options","Worm castings, compost tea and seaweed extract feed gently and improve the soil. Use them on the same schedule as a liquid feed."],
+["How to apply","Water the plant first, then feed. Never fertilise bone-dry soil, and flush the pot with plain water every few months to wash away salt build-up."],
+["Over- or under-feeding","Over-fed plants show white crust on the soil, brown leaf tips or dropping leaves: flush with plenty of water and pause feeding. Under-fed plants have pale leaves and slow growth."]];
+const gsvg=t=>{
+ const lf="M100 175C40 150 35 70 100 25C165 70 160 150 100 175Z",P=i=>[72+(i*37)%58,48+(i*53)%100];
+ const D=(n,f)=>Array.from({length:n},(_,i)=>f(...P(i),i)).join("");
+ const leaf=(c,o)=>`<clipPath id="lc"><path d="${lf}"/></clipPath><path d="${lf}" fill="${c||"#5da05a"}"/><path d="M100 175V35" stroke="#2f6b46" stroke-width="3" fill="none"/><g clip-path="url(#lc)">${o||""}</g>`;
+ const C=(x,y)=>`<g fill="#fff" stroke="#d0d0d0"><circle cx="${x}" cy="${y}" r="6"/><circle cx="${x+6}" cy="${y+2}" r="4.5"/><circle cx="${x-5}" cy="${y+3}" r="4"/></g>`;
+ const line=n=>Array.from({length:n},(_,i)=>i/(n-1));
+ const m={
+ "Spider mites":leaf("#a6bd5c",D(26,(x,y)=>`<circle cx="${x}" cy="${y}" r="2" fill="#efe9a0"/>`)+D(7,(x,y)=>`<circle cx="${x+3}" cy="${y+4}" r="2.6" fill="#b83227"/>`)+`<path d="M100 60L68 92M100 60L134 88M100 60V122M68 92L100 122L134 88" stroke="#fff" stroke-opacity=".85" fill="none"/>`),
+ "Mealybugs":leaf()+C(100,150)+C(92,118)+C(110,96)+C(98,70)+C(122,132),
+ "Fungus gnats":`<ellipse cx="100" cy="165" rx="75" ry="22" fill="#5b3b25"/><ellipse cx="100" cy="158" rx="70" ry="16" fill="#7a5233"/><path d="M100 150V95" stroke="#4c9a52" stroke-width="4"/><ellipse cx="85" cy="92" rx="16" ry="9" fill="#5da05a"/><ellipse cx="116" cy="88" rx="16" ry="9" fill="#5da05a"/>`+D(8,(x,y)=>`<g transform="translate(${x+10} ${y-25})"><ellipse rx="3.5" ry="2.2" fill="#222"/><ellipse cx="-2" cy="-3" rx="4" ry="2" fill="#bcd" opacity=".7"/></g>`),
+ "Aphids":`<path d="M60 170Q100 110 140 40" stroke="#4c9a52" stroke-width="5" fill="none"/>`+line(16).map((t,i)=>{const x=60+80*t,y=170-130*t;return `<ellipse cx="${x+(i%2?7:-7)}" cy="${y}" rx="4" ry="6" fill="${i%3?"#7bc043":"#2b3a1e"}" transform="rotate(${i%2?25:-25} ${x+(i%2?7:-7)} ${y})"/>`}).join(""),
+ "Scale insects":`<path d="M50 170L150 40" stroke="#6f8a4a" stroke-width="9" stroke-linecap="round"/>`+line(10).map((t,i)=>`<ellipse cx="${55+90*t+(i%2?6:-6)}" cy="${165-120*t}" rx="5" ry="3.5" fill="#a9794b" stroke="#6e4b2a"/>`).join(""),
+ "Root rot":`<rect x="30" y="20" width="140" height="30" rx="6" fill="#7a5233"/><path d="M55 50Q45 100 60 150M80 50Q85 110 75 165M100 50Q100 95 108 140" stroke="#eadcb8" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M125 50Q120 90 135 125M150 50Q155 85 145 110" stroke="#2a1f1a" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="135" cy="125" r="7" fill="#2a1f1a"/><circle cx="145" cy="110" r="6" fill="#2a1f1a"/><text x="72" y="186" font-size="11" text-anchor="middle" fill="#6a7566">healthy</text><text x="138" y="186" font-size="11" text-anchor="middle" fill="#6a7566">rotted</text>`,
+ "Powdery mildew":leaf("#4f9a5a",D(8,(x,y,i)=>`<circle cx="${x}" cy="${y}" r="${9+i%3*3}" fill="#fff" opacity=".8"/>`)),
+ "Leaf spot":leaf("#5da05a",D(9,(x,y)=>`<circle cx="${x}" cy="${y}" r="9" fill="#e6d34a" opacity=".75"/><circle cx="${x}" cy="${y}" r="4.5" fill="#6b3e1f"/>`)),
+ "Yellow leaves and brown tips":leaf("#cdd05a",`<path d="M100 25C80 42 70 56 67 72L133 72C130 56 120 42 100 25Z" fill="#7a4a24"/>`)
+ };
+ return `<svg viewBox="0 0 200 200" role="img" aria-label="${t} illustration"><rect width="200" height="200" fill="#f3ead9"/>${m[t]||""}</svg>`;
+};
+const gpic=t=>GIMG[t]?`<img src="${GIMG[t]}" alt="${t}" loading="lazy" onerror="this.outerHTML=gsvg(this.alt)">`:gsvg(t);
+const gl=(id,a,two)=>$(id).innerHTML=a.map(([t,x,y])=>`<details><summary>${t}</summary>${two?`<div class="gwrap"><div class="gp">${gpic(t)}</div><div><p><b>Signs:</b> ${x}</p><p><b>What to do:</b> ${y}</p></div></div>`:`<p>${x}</p>`}</details>`).join("");
+gl("g1",G1,1);gl("g2",G2,1);gl("g3",G3,0);
+
+/* ---- Contact ---- */
+$("ct").innerHTML=[["📸","Instagram",`<a href="${CONTACT.insta}" target="_blank" rel="noopener">${CONTACT.instaName}</a>`],["📍","Visit us",CONTACT.address],["📞","Call us",`<a href="tel:${CONTACT.phone.replace(/\s/g,"")}">${CONTACT.phone}</a>`],["✉️","Email",`<a href="mailto:${CONTACT.email}">${CONTACT.email}</a>`]].map(([i,t,v])=>`<div class="ci"><span>${i}</span><div><b>${t}</b><br>${v}</div></div>`).join("");
+/* ---- Hero background ---- */
+function heroScene(){
+ const R=(i,m)=>(i*47+13)%m;
+ const leaves=[[-20,400,1.8,-40,1],[330,420,.9,20,1],[880,420,.9,-15,1],[1230,400,1.8,40,1],[250,-30,1,170,1],[950,-30,1.1,190,1],[60,430,1.5,-25,0],[170,440,1.2,10,0],[1140,430,1.5,25,0],[1030,440,1.2,-12,0]];
+ const L=leaves.map(([x,y,s,r,far],i)=>`<g class="sw" style="transform-origin:${x}px ${y}px;animation-duration:${6+i%4*1.5}s;animation-delay:-${i*1.3}s;--k:${far?.6:1.2}"><g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"${far?' style="filter:blur(2.5px)" opacity=".7"':""}><use href="#ml"/></g></g>`).join("");
+ const rays=[[250,90],[520,150],[820,100],[1000,160]].map(([x,w],i)=>`<polygon class="ray" style="animation-delay:-${i*2}s" points="${x},0 ${x+w},0 ${x+w-190},400 ${x-250},400" fill="url(#ray)"/>`).join("");
+ const mist=`<g style="filter:blur(14px)">`+[[200,330],[700,360],[1050,320]].map(([x,y],i)=>`<ellipse class="mist" style="animation-delay:-${i*5}s" cx="${x}" cy="${y}" rx="260" ry="34" fill="#fff" opacity=".13"/>`).join("")+`</g>`;
+ const pf=Array.from({length:20},(_,i)=>`<circle class="pf" style="animation-duration:${6+R(i,7)}s;animation-delay:-${R(i,9)}s" cx="${R(i*3+1,1200)}" cy="${120+R(i*5,260)}" r="${1.2+R(i,3)*.7}" fill="#fff3b0"/>`).join("");
+ return `<svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
+<linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d3b29"/><stop offset=".55" stop-color="#1a6a43"/><stop offset="1" stop-color="#0a2a1b"/></linearGradient>
+<linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8" stop-opacity=".5"/><stop offset="1" stop-color="#fff2a8" stop-opacity="0"/></linearGradient>
+<linearGradient id="lg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1c6b3a"/><stop offset="1" stop-color="#58b765"/></linearGradient>
+<mask id="mm" maskUnits="userSpaceOnUse" x="-120" y="-200" width="240" height="230"><rect x="-120" y="-200" width="240" height="230" fill="#fff"/><path d="M-100 -60L-34 -68M-98 -95L-30 -100M-80 -132L-26 -126M-88 -30L-42 -44M100 -60L34 -68M98 -95L30 -100M80 -132L26 -126M88 -30L42 -44" stroke="#000" stroke-width="8" stroke-linecap="round"/><g fill="#000"><ellipse cx="-46" cy="-60" rx="6" ry="10"/><ellipse cx="46" cy="-60" rx="6" ry="10"/><ellipse cx="-36" cy="-106" rx="6" ry="9"/><ellipse cx="36" cy="-106" rx="6" ry="9"/><ellipse cx="-20" cy="-142" rx="5" ry="8"/><ellipse cx="20" cy="-142" rx="5" ry="8"/></g></mask>
+<g id="ml"><path d="M0 -30V70" stroke="#2e7d42" stroke-width="6" fill="none"/><g mask="url(#mm)"><path d="M0 -30C-20 10 -95 5 -92 -70C-90 -125 -40 -150 0 -175C40 -150 90 -125 92 -70C95 5 20 10 0 -30Z" fill="url(#lg)"/><path d="M0 -30V-172M0 -50L-70 -85M0 -50L70 -85M0 -100L-60 -125M0 -100L60 -125" stroke="#134d2a" stroke-opacity=".55" stroke-width="2.5" fill="none"/></g></g></defs>
+<rect width="1200" height="400" fill="url(#bgg)"/>${rays}<g fill="#08261a" opacity=".85"><ellipse cx="150" cy="400" rx="260" ry="90"/><ellipse cx="620" cy="410" rx="320" ry="70"/><ellipse cx="1050" cy="400" rx="280" ry="95"/></g>${mist}${L}${pf}</svg>`;
+}
+function heroFallback(){$("hbg").innerHTML=heroScene()}
+if(HERO_BG)$("hbg").innerHTML=`<img src="${HERO_BG}" alt="" onerror="heroFallback()">`;else heroFallback();
+
+/* ---- Hero leaves sway more with the mouse ---- */
+(()=>{
+ if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+ const h=document.querySelector("header"),b=$("hbg");
+ let tl=0,ta=3.5,l=0,a=3.5,run=false;
+ const step=()=>{l+=(tl-l)*.08;a+=(ta-a)*.08;b.style.setProperty("--lean",l.toFixed(2));b.style.setProperty("--amp",a.toFixed(2));
+  if(Math.abs(tl-l)>.01||Math.abs(ta-a)>.01)requestAnimationFrame(step);else run=false};
+ const go=()=>{if(!run){run=true;requestAnimationFrame(step)}};
+ h.addEventListener("pointermove",e=>{const r=h.getBoundingClientRect();tl=((e.clientX-r.left)/r.width-.5)*10;ta=7;go()});
+ h.addEventListener("pointerleave",()=>{tl=0;ta=3.5;go()});
+})();
+
+/* ---- Booking ---- */
+document.querySelectorAll(".sv").forEach(s=>{const a=s.querySelector('a[href="#contact"]');if(a){a.href="#book";a.onclick=()=>{$("bsvc").value=s.querySelector("h3").textContent}}});
+$("bdate").min=new Date().toISOString().slice(0,10);
+$("bf").onsubmit=e=>{e.preventDefault();const f=e.target;
+ const body=`Service: ${f.svc.value}\nPreferred date: ${f.date.value} (${f.time.value})\nName: ${f.fullname.value}\nPhone: ${f.phone.value}\nEmail: ${f.email.value}\nAddress: ${f.addr.value||"-"}\n\nDetails:\n${f.msg.value||"-"}`;
+ location.href=`mailto:${CONTACT.email}?subject=${encodeURIComponent("Booking request: "+f.svc.value)}&body=${encodeURIComponent(body)}`;
+ $("bsent").style.display="block"};
+render();
+</script>
+</body>
+</html>
